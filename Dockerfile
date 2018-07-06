@@ -18,8 +18,7 @@ RUN apt-get update && apt-get install -y openssh-server
 # without any password and to navigate from one machine to another simply typing
 # "ssh <node name>".
 RUN mkdir -p /root/.ssh && \
-	chmod 0700 /root/.ssh && \
-	ssh-keyscan github.ibm.com > /root/.ssh/known_hosts
+	chmod 0700 /root/.ssh
 RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
 	echo "$ssh_pub_key" > /root/.ssh/id_rsa.pub && \
 	echo "$ssh_pub_key" > /root/.ssh/authorized_keys && \
