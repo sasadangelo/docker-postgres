@@ -7,7 +7,7 @@ ARG ssh_pub_key
 # Update Ubuntu Software repository. This is required to install packages.
 # Install the following packages:
 #     openssh-server is required to access nodes via ssh
-RUN apt-get update && apt-get install -y openssh-server
+RUN apt-get update && apt-get install -y openssh-server postgresql
 
 # Create .ssh folder in /root folder in order to install SSH Keys
 # that will be used to:
@@ -26,6 +26,11 @@ RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
 	chmod 600 /root/.ssh/id_rsa.pub && \
 	chmod 600 /root/.ssh/authorized_keys
 RUN env=~/.ssh/agent.env; umask 077; ssh-agent > "$env"; . "$env"; ssh-add ~/.ssh/id_rsa
+
+# Create the folder for data directory
+RUN mkdir -p /home/postgres/data && \
+	chown -R postgres:staff /home/postgres/ && \
+	chmod 700 /home/postgres/data
 
 # Use bash as extry point and expose on target host the port 5432 where
 # PostgreSQL server will listen.
