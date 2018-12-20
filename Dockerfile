@@ -28,9 +28,10 @@ RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
 RUN env=~/.ssh/agent.env; umask 077; ssh-agent > "$env"; . "$env"; ssh-add ~/.ssh/id_rsa
 
 # Create the folder for data directory
-RUN mkdir -p /home/postgres/data && \
+RUN mkdir -p /home/postgres/data/postgres && \
+	mkdir -p /home/postgres/data/logs && \
 	chown -R postgres:staff /home/postgres/ && \
-	chmod 700 /home/postgres/data
+	chmod -R 700 /home/postgres/data
 
 # Use bash as extry point and expose on target host the port 5432 where
 # PostgreSQL server will listen.
