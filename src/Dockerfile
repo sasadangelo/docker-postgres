@@ -1,8 +1,8 @@
 # Download base image ubuntu 14.04.
 FROM ubuntu:14.04
 
-ARG ssh_prv_key
-ARG ssh_pub_key
+#ARG ssh_prv_key
+#ARG ssh_pub_key
 
 # Update Ubuntu Software repository. This is required to install packages.
 # Install the following packages:
@@ -19,13 +19,15 @@ RUN apt-get update && apt-get install -y openssh-server postgresql
 # "ssh <node name>".
 RUN mkdir -p /root/.ssh && \
 	chmod 0700 /root/.ssh
-RUN echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
-	echo "$ssh_pub_key" > /root/.ssh/id_rsa.pub && \
-	echo "$ssh_pub_key" > /root/.ssh/authorized_keys && \
-	chmod 600 /root/.ssh/id_rsa && \
-	chmod 600 /root/.ssh/id_rsa.pub && \
-	chmod 600 /root/.ssh/authorized_keys
-RUN env=~/.ssh/agent.env; umask 077; ssh-agent > "$env"; . "$env"; ssh-add ~/.ssh/id_rsa
+
+COPY ssh/* /root/.ssh/
+
+RUN chmod 600 /root/.ssh/* && \
+	env=~/.ssh/agent.env && \
+	umask 077 && \
+	ssh-agent > "$env" && \
+	. "$env" && \
+	ssh-add ~/.ssh/id_rsa
 
 # Create the folder for data directory
 RUN mkdir -p /home/postgres/data/postgres && \
@@ -33,7 +35,12 @@ RUN mkdir -p /home/postgres/data/postgres && \
 	chown -R postgres:staff /home/postgres/ && \
 	chmod -R 700 /home/postgres/data
 
+RUN mkdir -p /usr/local/bin/cluster
+COPY ./pgsql /usr/local/bin/cluster
+
 # Use bash as extry point and expose on target host the port 5432 where
 # PostgreSQL server will listen.
-ENTRYPOINT service ssh start && /bin/bash
-EXPOSE 22
+#ENTRYPOINT service ssh start && /bin/bash
+#EXPOSE 22
+#CMD ["/usr/local/bin/cluster/bin/entrypoint.sh"]
+ENTRYPOINT /usr/local/bin/cluster/bin/entrypoint.sh && /bin/bash
