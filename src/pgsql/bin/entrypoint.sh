@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+echo '>>> STARTING SSH (if required)...'
+sshd_start
+
 echo '>>> CONFIGURE POSTGRESQL ...'
 /usr/local/bin/cluster/bin/postgres/entrypoint.sh & wait ${!}
 
