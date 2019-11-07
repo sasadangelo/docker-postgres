@@ -1,0 +1,89 @@
+version: '3.6'
+
+volumes:
+    volume1:
+    volume2:
+    volume3:
+
+services:
+    node1:
+        container_name: node1
+
+        build:
+            context: ../src
+            dockerfile: Dockerfile
+
+        image: postgresql:latest
+
+        environment:
+            NODE_NAME: node1 # Node name
+            MASTER_NAME: $MASTER_NAME
+
+        ports:
+            - "5432:5432"
+
+        volumes:
+            - volume1:/home/postgres/data
+
+        networks:
+            cluster:
+                ipv4_address: 10.0.2.31
+                aliases:
+                    - node1.domain.com
+
+    node2:
+        container_name: node2
+
+        build:
+            context: ../src
+            dockerfile: Dockerfile
+
+        image: postgresql:latest
+
+        environment:
+            NODE_NAME: node2 # Node name
+            MASTER_NAME: $MASTER_NAME
+
+        ports:
+            - "5433:5432"
+
+        volumes:
+            - volume2:/home/postgres/data
+
+        networks:
+            cluster:
+                ipv4_address: 10.0.2.32
+                aliases:
+                    - node2.domain.com
+
+    node3:
+        container_name: node3
+
+        build:
+            context: ../src
+            dockerfile: Dockerfile
+
+        image: postgresql:latest
+
+        environment:
+            NODE_NAME: node3 # Node name
+            MASTER_NAME: $MASTER_NAME
+
+        ports:
+            - "5434:5432"
+
+        volumes:
+            - volume3:/home/postgres/data
+
+        networks:
+            cluster:
+                ipv4_address: 10.0.2.33
+                aliases:
+                    - node3.domain.com
+
+networks:
+  cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.2.1/24
